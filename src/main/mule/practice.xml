@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0457b2c3-5e75-4cec-827e-9eb13bc2eab3" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="09242b99-2e89-462f-a921-385f15f3ccee" >
+		<http:request-connection host="www.thomasbayer.com" port="80" />
+	</http:request-config>
+	<flow name="practiceFlow" doc:id="bf59bf8e-cea2-434b-a375-bb8b3cbbc181" >
+		<http:listener doc:name="Listener" doc:id="1eb73434-0906-48c4-8ea8-ce28f4a56d50" config-ref="HTTP_Listener_config" path="/00"/>
+		<logger level="INFO" doc:name="Logger" doc:id="417687bd-1bcc-4881-b7c1-4fd78e2d3578" message="#[payload]"/>
+		<set-variable value="0" doc:name="Set Variable" doc:id="50a92562-47fa-45e1-b3c0-58b24781f16d" variableName="total"/>
+		<foreach doc:name="For Each" doc:id="7e8f783e-4dd7-430f-8e98-bb51702a6340" collection="#[payload]">
+			<ee:transform doc:name="Transform Message" doc:id="53f3ae0d-af44-4141-8d1e-c75f09a03205">
+			<ee:message>
+			</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="total" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.total + payload]]></ee:set-variable>
+					<ee:set-variable variableName="sub" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.total - payload]]></ee:set-variable>
+				</ee:variables>
+		</ee:transform>
+		</foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="dcb99ccf-35b6-4339-8c77-f8a9274c0c0d" message="#[vars.total]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="bc9e655a-cffd-498d-a6d7-020393a59241" message="#[vars.sub]"/>
+	</flow>
+</mule>
